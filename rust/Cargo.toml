@@ -1,0 +1,12 @@
+[package]
+name = "tiffgraph"
+version = "0.1.0"
+edition = "2024"
+description = "Bounded TIFF/DNG graph walker: XMP packet location, protected extents, physical regions"
+license = "MIT"
+repository = "https://github.com/firstpair/tiffgraph"
+readme = "../README.md"
+keywords = ["tiff", "dng", "xmp", "photography"]
+categories = ["parser-implementations", "multimedia::images"]
+
+[dependencies]

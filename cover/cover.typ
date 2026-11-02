@@ -62,7 +62,7 @@
   place(top + left, dx: 0.7in, dy: 0.9in, block(width: 6in, {
     text(size: 54pt, weight: "bold", "tiffgraph")
     v(-0.25in)
-    text(size: 16pt, fill: rgb("#b9d3dd"), "A bounded TIFF/DNG graph walker for OCaml and OxCaml")
+    text(size: 16pt, fill: rgb("#b9d3dd"), "A bounded TIFF/DNG graph walker for OCaml, OxCaml and Rust")
   }))
   place(top + left, dx: 0.85in, dy: 3.4in, graph(1.05))
   place(top + left, dx: 0.7in, dy: 6.55in, file-strip(5.93in, 0.7in))

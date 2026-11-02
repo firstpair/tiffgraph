@@ -7,6 +7,7 @@ canonical_url: "https://firstpair.press/tiffgraph/"
 tags:
   - ocaml
   - oxcaml
+  - rust
   - dng
   - photography
 ---
@@ -51,8 +52,10 @@ tiffgraph computes no hashes, by design. Two other projects compute this digest 
 
 ## Small, and tested on bytes that never existed
 
-tiffgraph started life as a module inside Semantic Unison. It became its own package so that other projects could use it without the synchronizer. Today it is one file of pure OCaml with no dependencies. It builds with stock OCaml 5 and with OxCaml, where its interface is portable, so walks can run in parallel domains.
+tiffgraph started life as a module inside Semantic Unison. It became its own package so that other projects could use it without the synchronizer. Its OCaml build is one file with no dependencies. It builds with stock OCaml 5 and with OxCaml, where its interface is portable, so walks can run in parallel domains.
 
-Its tests use no photographs. A small TIFF writer in the test suite builds every case in memory: both byte orders, classic and BigTIFF, each grammar's acceptances and refusals, cycles, overlaps, admissions. That makes 47 controls, and they do catch breakage: disable the overlap check, and exactly the overlap test fails.
+It also has a Rust build, just in case: a crate with no dependencies, a line-for-line port with the same grammars, the same limits and the same refusal reasons. Two builds of one checker are only safe if they agree, so a test runs both on every file and compares what every grammar makes of it, down to the last component region. The files are 40 synthetic DNGs, 3,000 random mutations of them, and the 328 real DNGs we had at hand. They agreed on every one. When we changed one detail in the Rust build to see whether the comparison would notice, it failed at once.
 
-The [manual](https://firstpair.org/books/tiffgraph/) has the rest: the reader contract, every grammar in detail, the limits, the region roles, and the digest's exact definition. tiffgraph is MIT-licensed, at [github.com/firstpair/tiffgraph](https://github.com/firstpair/tiffgraph).
+Its tests use no photographs. A small TIFF writer in the test suite builds every case in memory: both byte orders, classic and BigTIFF, each grammar's acceptances and refusals, cycles, overlaps, admissions. That makes 47 controls in OCaml, and the Rust build has its own, including the limits no ordinary file reaches. They do catch breakage: disable the overlap check, and exactly the overlap test fails.
+
+The [manual](https://firstpair.org/books/tiffgraph/) has the rest: the reader contract in both languages, every grammar in detail, the limits, the region roles, how the two builds are kept in step, and the digest's exact definition. tiffgraph is MIT-licensed, at [github.com/firstpair/tiffgraph](https://github.com/firstpair/tiffgraph).

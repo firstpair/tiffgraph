@@ -33,9 +33,13 @@ tiffgraph began as the `DngSemantic` module of Semantic Unison, a fork of the Un
 
 The code moved without change. The old and new walkers gave byte-identical results on 328 local DNGs, and Unison's own DNG tests pass against the package.
 
+The same day it gained a second build, in Rust: a line-for-line port with the same grammars, limits, order of checks and refusal reasons. The two builds are compared file by file, as the chapter on Rust describes.
+
 # Installing
 
-tiffgraph is pure OCaml with no dependencies beyond the standard library. It builds with stock OCaml 5.1 or later and with OxCaml.
+## OCaml and OxCaml
+
+The OCaml build has no dependencies beyond the standard library. It builds with stock OCaml 5.1 or later and with OxCaml.
 
 ```sh
 opam pin add tiffgraph git+https://github.com/firstpair/tiffgraph.git#main
@@ -55,6 +59,17 @@ or from a plain compiler command, since opam installs it beside the standard lib
 ocamlfind ocamlopt -package tiffgraph -linkpkg scan.ml -o scan
 ocamlopt -I +../tiffgraph tiffgraph.cmxa scan.ml -o scan
 ```
+
+## Rust
+
+The Rust build is the crate in `rust/`, also with no dependencies:
+
+```toml
+[dependencies]
+tiffgraph = { git = "https://github.com/firstpair/tiffgraph" }
+```
+
+It uses Rust edition 2024; the repository pins the toolchain in `rust/rust-toolchain.toml`.
 
 # Using it
 
@@ -227,6 +242,38 @@ Under OxCaml, tiffgraph's interface is `@@ portable`, generated at build time wh
 
 The reader's functions do not have to be portable to pass them to `walk`. Portability matters only for what the closure you give to `Domain.Safe.spawn` captures. Build the reader inside the worker, for example from a portable `pread` external on a file descriptor, and nothing non-portable crosses domains. phidentify's backup indexer does exactly that.
 
+# Rust
+
+The Rust build has the same parts under Rust names:
+
+```rust
+use tiffgraph::{walk, FileReader, Observers, Policy, WalkError};
+
+let mut reader = FileReader::open(path)?;
+match walk(&Policy::v1(1 << 20), &mut reader, Observers::default()) {
+    Ok(Some(xmp)) => println!("XMP at {}, {} bytes", xmp.offset, xmp.length),
+    Ok(None) => println!("no packet, and the policy did not require one"),
+    Err(WalkError::Refused(reason)) => println!("refused: {reason}"),
+    Err(WalkError::Reader(e)) => return Err(e.into()),
+}
+```
+
+- **The reader is a trait**, `Reader`, with `size`, `read` and a `check` that does nothing unless you supply one. `SliceReader` reads bytes in memory and `FileReader` reads a file with positional reads.
+- **Errors are typed.** A refusal is `WalkError::Refused(reason)`, with the same reason text as the OCaml build. A reader failure is `WalkError::Reader(e)`, with the reader's own error unchanged.
+- **Observers are optional closures.** `Observers { record, unknown }` takes the place of OCaml's `?record` and `?unknown`. A `record` closure may return `Err` to stop the walk, which is how `component_regions` enforces its limit.
+- **Policies are constructors:** `Policy::v0(max_xmp)`, `v1`, `merge_only` and `layout`.
+- **Admissions are global**, as in OCaml: `admit_fields` replaces the list behind a lock and `parse_admission` parses `Image:65001:4`. It accepts integers in the same forms OCaml's `int_of_string` does, so `Exif:0x927c:7` means the same in both.
+
+## One behaviour, two builds
+
+A port is only as good as its comparison, so the two builds are compared on every file, by `test/cross.py` (`make cross`). Each build has a small `dump` program that prints what every grammar makes of a file: the packet or the exact refusal reason under `v0`, `v1`, `merge_only` and `layout`, the unknown-field survey, and every component region with its ID, schema, role, offset and length. The two outputs must be identical, byte for byte. The files are:
+
+- **40 synthetic DNG-shaped files:** both byte orders, classic TIFF and BigTIFF, sub-IFDs, Exif, a camera profile, private fields, UNDEFINED packets, JPEG XL scalars.
+- **3,000 seeded mutations of them:** bytes flipped, files cut short, counts and offsets overwritten, stretches duplicated. Most are refused, and the point is that both builds refuse them for the same reason.
+- **Any files you add,** such as real DNGs. On 2026-11-02 the 328 local DNGs gave identical output from both builds.
+
+The comparison does catch differences. Changing the role of strip regions in the Rust build made it fail at once, naming the first line that differed. It can't catch differences in limits that no compared file reaches, so the Rust tests check those directly: more than 65,536 strip pieces, more than 16,384 entries, and an eight-byte number past signed 64 bits.
+
 # The preserved digest
 
 A walker that finds the packet makes possible an identity that ignores it: a hash of every byte **outside** the editable region, with the layout bound in. Two files with the same preserved digest under the same grammar differ, if at all, only inside their XMP packets.
@@ -248,11 +295,13 @@ tiffgraph computes no hashes, by design. Semantic Unison computes this digest in
 # Testing
 
 ```sh
-dune test                 # the current switch
-make both                 # stock OCaml 5 and OxCaml
+make both                 # OCaml tests, stock OCaml 5 and OxCaml
+make rust                 # Rust tests and clippy
+make cross                # the two builds agree on every file
+make all                  # all three
 ```
 
-The tests build every file in memory from a list of TIFF entries, so the repository holds no photos and no fixtures. There are 47 controls:
+The tests build every file in memory from a list of TIFF entries, so the repository holds no photos and no fixtures. The OCaml build has 47 controls:
 
 - **Shapes:** minimal DNGs in both byte orders, classic TIFF and BigTIFF, accepted by each grammar that should accept them.
 - **Refusals:** a missing or unsupported DNGVersion, duplicate tags, a cyclic pointer, unpaired strips, two packets, a value past the end, a strip inside the packet, a packet over `max_xmp`, unknown fields per grammar.
@@ -262,11 +311,15 @@ The tests build every file in memory from a list of TIFF entries, so the reposit
 
 The tests do catch breakage. With the overlap check disabled, exactly the strip-inside-the-packet control fails.
 
+The Rust build has the same kinds of control in five groups (shapes, refusals, widening and admissions, regions and the reader contract, and limits), built with its own small TIFF writer. Then the cross check compares the two builds.
+
 ## Changing a grammar
 
-The grammars are a protocol: Semantic Unison peers agree on them by name. Widening one changes what peers will accept, so a change needs agreement with Semantic Unison first, and synthetic controls for every new acceptance and every refusal next to it.
+The grammars are a protocol: Semantic Unison peers agree on them by name. Widening one changes what peers will accept, so a change needs agreement with Semantic Unison first, the same change in both builds, and synthetic controls for every new acceptance and every refusal next to it. `make all` must pass before it is published.
 
 # Reference
+
+## OCaml
 
 ```ocaml
 type reader = { size : int64; read : int64 -> int -> string; check : unit -> unit }
@@ -293,3 +346,35 @@ val component_regions : max_xmp:int -> reader -> (component_region list, string)
 ```
 
 `walk`'s `record` sees each region as it is found, and `unknown` turns an unknown field from a refusal into a note. `schema` on a region says how to read its bytes: `tiff-structure/0`, `tiff-encoded-unit/0`, or `tiff-value/0:<byte order>:<type>:<count>`.
+
+## Rust
+
+```rust
+pub trait Reader {
+    type Error;
+    fn size(&self) -> i64;
+    fn read(&mut self, offset: i64, length: usize) -> Result<Vec<u8>, Self::Error>;
+    fn check(&mut self) -> Result<(), Self::Error> { Ok(()) }
+}
+pub struct SliceReader<'a>(pub &'a [u8]);
+pub struct FileReader { /* ... */ }            // FileReader::open(path)
+
+pub struct Xmp { pub offset: i64, pub length: usize }
+pub enum ComponentRole { ImageBytes, StandardValue, PrivateValue, Structure }
+pub struct ComponentRegion { pub logical_id: String, pub schema: String,
+                             pub role: ComponentRole, pub offset: i64, pub length: i64 }
+pub struct Policy { pub extended: bool, pub opaque_maker: bool, pub layout_only: bool,
+                    pub require_xmp: bool, pub max_xmp: usize }
+pub enum WalkError<E> { Refused(String), Reader(E) }
+pub struct Observers<'a> { pub record: Option<RecordFn<'a>>, pub unknown: Option<UnknownFn<'a>> }
+
+impl Policy { pub fn v0(max_xmp: usize) -> Policy; /* v1, merge_only, layout */ }
+pub fn walk<R: Reader>(policy: &Policy, reader: &mut R, obs: Observers<'_>)
+    -> Result<Option<Xmp>, WalkError<R::Error>>;
+pub fn admit_fields(fields: Vec<(String, i64, i64)>);
+pub fn parse_admission(spec: &str) -> Result<(String, i64, i64), String>;
+pub fn unknown_fields<R: Reader>(max_xmp: usize, reader: &mut R)
+    -> Result<(Vec<(String, i64, i64, i64)>, Option<String>), R::Error>;
+pub fn component_regions<R: Reader>(max_xmp: usize, reader: &mut R)
+    -> Result<Vec<ComponentRegion>, WalkError<R::Error>>;
+```

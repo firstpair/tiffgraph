@@ -1,3 +1,10 @@
 (test
  (name test_tiffgraph)
+ (modules test_tiffgraph)
+ (libraries tiffgraph))
+
+; For test/cross.py: the OCaml side of the comparison with the Rust build.
+(executable
+ (name dump)
+ (modules dump)
  (libraries tiffgraph))
