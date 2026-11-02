@@ -1,0 +1,11 @@
+title: tiffgraph
+subtitle: A bounded TIFF/DNG graph walker for OCaml and OxCaml
+author: Alexy Khrabrov, with Claude as co-author
+language: en-US
+lang: en-US
+publisher: First Pair Press
+rights: Copyright 2026 Alexy Khrabrov. tiffgraph is licensed under the MIT License.
+title_stem: tiffgraph
+cover_image: cover/tiffgraph-cover.png
+headboard_image: cover/tiffgraph-headboard.png
+description: A short manual for tiffgraph, which finds a DNG's XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml.

@@ -45,6 +45,12 @@ confirm the file did not change while it was read. `Tiffgraph.unknown_fields`
 surveys a file for fields outside the `merge_only` grammar, and
 `Tiffgraph.component_regions` lists its physical regions.
 
+## Manual
+
+The manual is on the Photography shelf at
+[firstpair.org/books/tiffgraph](https://firstpair.org/books/tiffgraph/); its source is
+`docs/tiffgraph-manual.md`.
+
 ## Build and test
 
 ```sh
