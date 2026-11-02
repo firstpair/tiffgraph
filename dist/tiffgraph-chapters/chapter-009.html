@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-02" />
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml." />
+  <title>OxCaml</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">tiffgraph</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">tiffgraph</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-010.html" accesskey="n" rel="next">The preserved digest</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-008.html" accesskey="p" rel="previous">Component regions</a>
+</span>
+</div>
+</nav>
+<h1 data-number="8" id="oxcaml"><span
+class="header-section-number">8</span> OxCaml</h1>
+<p>Under OxCaml, tiffgraph’s interface is <code>@@ portable</code>,
+generated at build time when the compiler version contains
+<code>+ox</code>. Its functions can be called from
+<code>Domain.Safe.spawn</code> workers.</p>
+<p>The reader’s functions do not have to be portable to pass them to
+<code>walk</code>. Portability matters only for what the closure you
+give to <code>Domain.Safe.spawn</code> captures. Build the reader inside
+the worker, for example from a portable <code>pread</code> external on a
+file descriptor, and nothing non-portable crosses domains. phidentify’s
+backup indexer does exactly that.</p>
+</body>
+</html>

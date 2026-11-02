@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-02" />
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml." />
+  <title>The preserved digest</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">tiffgraph</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">tiffgraph</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-011.html" accesskey="n" rel="next">Testing</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-009.html" accesskey="p" rel="previous">OxCaml</a>
+</span>
+</div>
+</nav>
+<h1 data-number="9" id="the-preserved-digest"><span
+class="header-section-number">9</span> The preserved digest</h1>
+<p>A walker that finds the packet makes possible an identity that
+ignores it: a hash of every byte <strong>outside</strong> the editable
+region, with the layout bound in. Two files with the same preserved
+digest under the same grammar differ, if at all, only inside their XMP
+packets.</p>
+<p>Semantic Unison calls it <code>SDE/0-preserved</code>. Its
+definition, with every integer an unsigned 64-bit big-endian number:</p>
+<pre class="text"><code>SHA-256( &quot;SDE/0-preserved\0&quot;
+       ‖ file size
+       ‖ number of regions
+       ‖ (offset ‖ length) for each region
+       ‖ (start ‖ length ‖ bytes) for each gap before, between and after the regions )</code></pre>
+<p>The regions are what <code>walk</code> returns: the one XMP packet.
+Gaps are hashed even when empty, so the packet’s position is always
+bound in. The digest depends on the grammar only through the regions, so
+compare digests only between files accepted by the same grammar.</p>
+<p>tiffgraph computes no hashes, by design. Semantic Unison computes
+this digest in OCaml, and phidentify in Rust, both over regions from
+tiffgraph. On 2026-11-02 they were compared on 60 randomly chosen
+catalog DNGs: all 57 files with a packet gave the same strictest grammar
+(<code>merge_only</code>) and the same digest from both, and the 3
+without a packet were refused by both.</p>
+</body>
+</html>

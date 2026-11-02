@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-02" />
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml." />
+  <title>tiffgraph</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+</span>
+<span class="navlink">
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-001.html" accesskey="n" rel="next">tiffgraph</a>
+</span>
+<span class="navlink">
+</span>
+</div>
+</nav>
+<header id="title-block-header">
+<h1 class="title">tiffgraph</h1>
+<p class="subtitle">A bounded TIFF/DNG graph walker for OCaml and
+OxCaml</p>
+<p class="author">Alexy Khrabrov, with Claude as co-author</p>
+<p class="date">2026-11-02</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="chapter-002.html#about-this-manual"
+id="toc-about-this-manual"><span class="toc-section-number">1</span>
+About this manual</a></li>
+<li><a href="chapter-003.html#what-tiffgraph-is"
+id="toc-what-tiffgraph-is"><span class="toc-section-number">2</span>
+What tiffgraph is</a>
+<ul>
+<li><a href="chapter-003.html#what-it-is-not"
+id="toc-what-it-is-not"><span class="toc-section-number">2.1</span> What
+it is not</a></li>
+<li><a href="chapter-003.html#where-it-comes-from"
+id="toc-where-it-comes-from"><span class="toc-section-number">2.2</span>
+Where it comes from</a></li>
+</ul></li>
+<li><a href="chapter-004.html#installing" id="toc-installing"><span
+class="toc-section-number">3</span> Installing</a></li>
+<li><a href="chapter-005.html#using-it" id="toc-using-it"><span
+class="toc-section-number">4</span> Using it</a>
+<ul>
+<li><a href="chapter-005.html#the-reader" id="toc-the-reader"><span
+class="toc-section-number">4.1</span> The reader</a></li>
+<li><a href="chapter-005.html#finding-the-packet"
+id="toc-finding-the-packet"><span class="toc-section-number">4.2</span>
+Finding the packet</a></li>
+</ul></li>
+<li><a href="chapter-006.html#the-grammars" id="toc-the-grammars"><span
+class="toc-section-number">5</span> The grammars</a>
+<ul>
+<li><a href="chapter-006.html#v0" id="toc-v0"><span
+class="toc-section-number">5.1</span> v0</a></li>
+<li><a href="chapter-006.html#v1" id="toc-v1"><span
+class="toc-section-number">5.2</span> v1</a></li>
+<li><a href="chapter-006.html#merge_only" id="toc-merge_only"><span
+class="toc-section-number">5.3</span> merge_only</a></li>
+<li><a href="chapter-006.html#layout" id="toc-layout"><span
+class="toc-section-number">5.4</span> layout</a></li>
+<li><a href="chapter-006.html#admissions" id="toc-admissions"><span
+class="toc-section-number">5.5</span> Admissions</a></li>
+</ul></li>
+<li><a href="chapter-007.html#limits" id="toc-limits"><span
+class="toc-section-number">6</span> Limits</a></li>
+<li><a href="chapter-008.html#component-regions"
+id="toc-component-regions"><span class="toc-section-number">7</span>
+Component regions</a></li>
+<li><a href="chapter-009.html#oxcaml" id="toc-oxcaml"><span
+class="toc-section-number">8</span> OxCaml</a></li>
+<li><a href="chapter-010.html#the-preserved-digest"
+id="toc-the-preserved-digest"><span class="toc-section-number">9</span>
+The preserved digest</a></li>
+<li><a href="chapter-011.html#testing" id="toc-testing"><span
+class="toc-section-number">10</span> Testing</a>
+<ul>
+<li><a href="chapter-011.html#changing-a-grammar"
+id="toc-changing-a-grammar"><span class="toc-section-number">10.1</span>
+Changing a grammar</a></li>
+</ul></li>
+<li><a href="chapter-012.html#reference" id="toc-reference"><span
+class="toc-section-number">11</span> Reference</a></li>
+</ul>
+</nav>
+
+</body>
+</html>
