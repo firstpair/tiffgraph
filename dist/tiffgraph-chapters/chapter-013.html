@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
+  <meta name="dcterms.date" content="2026-11-02" />
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml, OxCaml and Rust." />
+  <title>Reference</title>
+  <style>
+    div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
+    span.navlink { flex: 1; }
+    span.navlink-label { display: inline-block; min-width: 4em; }
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="book.css" />
+</head>
+<body>
+<nav id="sitenav">
+<div class="sitenav">
+<span class="navlink">
+<span class="navlink-label">Up:</span> <a href="chapter-001.html" accesskey="u" rel="up">tiffgraph</a>
+</span>
+<span class="navlink">
+<span class="navlink-label">Top:</span> <a href="index.html" accesskey="t" rel="top">tiffgraph</a>
+</span>
+</div>
+<div class="sitenav">
+<span class="navlink">
+</span>
+<span class="navlink">
+<span class="navlink-label">Previous:</span> <a href="chapter-012.html" accesskey="p" rel="previous">Testing</a>
+</span>
+</div>
+</nav>
+<h1 data-number="12" id="reference"><span
+class="header-section-number">12</span> Reference</h1>
+<h2 data-number="12.1" id="ocaml"><span
+class="header-section-number">12.1</span> OCaml</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> reader = { size : <span class="dt">int64</span>; read : <span class="dt">int64</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">string</span>; check : <span class="dt">unit</span> -&gt; <span class="dt">unit</span> }</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> xmp = { offset : <span class="dt">int64</span>; length : <span class="dt">int</span> }</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_role = Image_bytes | Standard_value | Private_value | Structure</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_region = { logical_id : <span class="dt">string</span>; schema : <span class="dt">string</span>; role : component_role;</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                          offset : <span class="dt">int64</span>; length : <span class="dt">int64</span> }</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> policy = { extended : <span class="dt">bool</span>; opaque_maker : <span class="dt">bool</span>; layout_only : <span class="dt">bool</span>;</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                require_xmp : <span class="dt">bool</span>; max_xmp : <span class="dt">int</span> }</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v0 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v1 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> merge_only : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> layout : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> walk : ?record:(component_region -&gt; <span class="dt">unit</span>) -&gt;</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  ?unknown:(<span class="dt">string</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int64</span> -&gt; <span class="dt">unit</span>) -&gt;</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  policy -&gt; reader -&gt; (xmp <span class="dt">option</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> admit_fields : (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>) <span class="dt">list</span> -&gt; <span class="dt">unit</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> parse_admission : <span class="dt">string</span> -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> unknown_fields : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span> * <span class="dt">int64</span>) <span class="dt">list</span> * <span class="dt">string</span> <span class="dt">option</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> component_regions : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (component_region <span class="dt">list</span>, <span class="dt">string</span>) <span class="dt">result</span></span></code></pre></div>
+<p><code>walk</code>’s <code>record</code> sees each region as it is
+found, and <code>unknown</code> turns an unknown field from a refusal
+into a note. <code>schema</code> on a region says how to read its bytes:
+<code>tiff-structure/0</code>, <code>tiff-encoded-unit/0</code>, or
+<code>tiff-value/0:&lt;byte order&gt;:&lt;type&gt;:&lt;count&gt;</code>.</p>
+<h2 data-number="12.2" id="rust-2"><span
+class="header-section-number">12.2</span> Rust</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">trait</span> Reader <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> Error<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> size(<span class="op">&amp;</span><span class="kw">self</span>) <span class="op">-&gt;</span> <span class="dt">i64</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> read(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span><span class="op">,</span> offset<span class="op">:</span> <span class="dt">i64</span><span class="op">,</span> length<span class="op">:</span> <span class="dt">usize</span>) <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span><span class="dt">Vec</span><span class="op">&lt;</span><span class="dt">u8</span><span class="op">&gt;,</span> <span class="pp">Self::</span><span class="bu">Error</span><span class="op">&gt;;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> check(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>) <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span>()<span class="op">,</span> <span class="pp">Self::</span><span class="bu">Error</span><span class="op">&gt;</span> <span class="op">{</span> <span class="cn">Ok</span>(()) <span class="op">}</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> SliceReader<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="op">&amp;</span><span class="ot">&#39;a</span> [<span class="dt">u8</span>])<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> FileReader <span class="op">{</span> <span class="co">/* ... */</span> <span class="op">}</span>            <span class="co">// FileReader::open(path)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Xmp <span class="op">{</span> <span class="kw">pub</span> offset<span class="op">:</span> <span class="dt">i64</span><span class="op">,</span> <span class="kw">pub</span> length<span class="op">:</span> <span class="dt">usize</span> <span class="op">}</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">enum</span> ComponentRole <span class="op">{</span> ImageBytes<span class="op">,</span> StandardValue<span class="op">,</span> PrivateValue<span class="op">,</span> Structure <span class="op">}</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> ComponentRegion <span class="op">{</span> <span class="kw">pub</span> logical_id<span class="op">:</span> <span class="dt">String</span><span class="op">,</span> <span class="kw">pub</span> schema<span class="op">:</span> <span class="dt">String</span><span class="op">,</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                             <span class="kw">pub</span> role<span class="op">:</span> ComponentRole<span class="op">,</span> <span class="kw">pub</span> offset<span class="op">:</span> <span class="dt">i64</span><span class="op">,</span> <span class="kw">pub</span> length<span class="op">:</span> <span class="dt">i64</span> <span class="op">}</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Policy <span class="op">{</span> <span class="kw">pub</span> extended<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span> <span class="kw">pub</span> opaque_maker<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span> <span class="kw">pub</span> layout_only<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">pub</span> require_xmp<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span> <span class="kw">pub</span> max_xmp<span class="op">:</span> <span class="dt">usize</span> <span class="op">}</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">enum</span> WalkError<span class="op">&lt;</span>E<span class="op">&gt;</span> <span class="op">{</span> Refused(<span class="dt">String</span>)<span class="op">,</span> Reader(E) <span class="op">}</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Observers<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;</span> <span class="op">{</span> <span class="kw">pub</span> record<span class="op">:</span> <span class="dt">Option</span><span class="op">&lt;</span>RecordFn<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;&gt;,</span> <span class="kw">pub</span> unknown<span class="op">:</span> <span class="dt">Option</span><span class="op">&lt;</span>UnknownFn<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;&gt;</span> <span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">impl</span> Policy <span class="op">{</span> <span class="kw">pub</span> <span class="kw">fn</span> v0(max_xmp<span class="op">:</span> <span class="dt">usize</span>) <span class="op">-&gt;</span> Policy<span class="op">;</span> <span class="co">/* v1, merge_only, layout */</span> <span class="op">}</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> walk<span class="op">&lt;</span>R<span class="op">:</span> Reader<span class="op">&gt;</span>(policy<span class="op">:</span> <span class="op">&amp;</span>Policy<span class="op">,</span> reader<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> R<span class="op">,</span> obs<span class="op">:</span> Observers<span class="op">&lt;</span><span class="ot">&#39;_</span><span class="op">&gt;</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span><span class="dt">Option</span><span class="op">&lt;</span>Xmp<span class="op">&gt;,</span> WalkError<span class="op">&lt;</span><span class="pp">R::</span><span class="bu">Error</span><span class="op">&gt;&gt;;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> admit_fields(fields<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>(<span class="dt">String</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span>)<span class="op">&gt;</span>)<span class="op">;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> parse_admission(spec<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span>(<span class="dt">String</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span>)<span class="op">,</span> <span class="dt">String</span><span class="op">&gt;;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> unknown_fields<span class="op">&lt;</span>R<span class="op">:</span> Reader<span class="op">&gt;</span>(max_xmp<span class="op">:</span> <span class="dt">usize</span><span class="op">,</span> reader<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> R)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span>(<span class="dt">Vec</span><span class="op">&lt;</span>(<span class="dt">String</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span>)<span class="op">&gt;,</span> <span class="dt">Option</span><span class="op">&lt;</span><span class="dt">String</span><span class="op">&gt;</span>)<span class="op">,</span> <span class="pp">R::</span><span class="bu">Error</span><span class="op">&gt;;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> component_regions<span class="op">&lt;</span>R<span class="op">:</span> Reader<span class="op">&gt;</span>(max_xmp<span class="op">:</span> <span class="dt">usize</span><span class="op">,</span> reader<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> R)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span><span class="dt">Vec</span><span class="op">&lt;</span>ComponentRegion<span class="op">&gt;,</span> WalkError<span class="op">&lt;</span><span class="pp">R::</span><span class="bu">Error</span><span class="op">&gt;&gt;;</span></span></code></pre></div>
+</body>
+</html>

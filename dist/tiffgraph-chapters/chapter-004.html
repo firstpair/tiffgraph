@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
   <meta name="dcterms.date" content="2026-11-02" />
-  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml." />
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml, OxCaml and Rust." />
   <title>Installing</title>
   <style>
     div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
@@ -121,8 +121,10 @@
 </nav>
 <h1 data-number="3" id="installing"><span
 class="header-section-number">3</span> Installing</h1>
-<p>tiffgraph is pure OCaml with no dependencies beyond the standard
-library. It builds with stock OCaml 5.1 or later and with OxCaml.</p>
+<h2 data-number="3.1" id="ocaml-and-oxcaml"><span
+class="header-section-number">3.1</span> OCaml and OxCaml</h2>
+<p>The OCaml build has no dependencies beyond the standard library. It
+builds with stock OCaml 5.1 or later and with OxCaml.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">opam</span> pin add tiffgraph git+https://github.com/firstpair/tiffgraph.git#main</span></code></pre></div>
 <p>Use it from dune:</p>
 <div class="sourceCode" id="cb2"><pre
@@ -133,5 +135,14 @@ class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb2-1"><a 
 standard library:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ocamlfind</span> ocamlopt <span class="at">-package</span> tiffgraph <span class="at">-linkpkg</span> scan.ml <span class="at">-o</span> scan</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ocamlopt</span> <span class="at">-I</span> +../tiffgraph tiffgraph.cmxa scan.ml <span class="at">-o</span> scan</span></code></pre></div>
+<h2 data-number="3.2" id="rust"><span
+class="header-section-number">3.2</span> Rust</h2>
+<p>The Rust build is the crate in <code>rust/</code>, also with no
+dependencies:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[dependencies]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">tiffgraph</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">git</span><span class="op"> =</span> <span class="st">&quot;https://github.com/firstpair/tiffgraph&quot;</span><span class="op"> }</span></span></code></pre></div>
+<p>It uses Rust edition 2024; the repository pins the toolchain in
+<code>rust/rust-toolchain.toml</code>.</p>
 </body>
 </html>

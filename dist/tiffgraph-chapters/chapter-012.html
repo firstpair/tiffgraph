@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
   <meta name="dcterms.date" content="2026-11-02" />
-  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml." />
-  <title>Reference</title>
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml, OxCaml and Rust." />
+  <title>Testing</title>
   <style>
     div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
     span.navlink { flex: 1; }
@@ -112,40 +112,49 @@
 </div>
 <div class="sitenav">
 <span class="navlink">
+<span class="navlink-label">Next:</span> <a href="chapter-013.html" accesskey="n" rel="next">Reference</a>
 </span>
 <span class="navlink">
-<span class="navlink-label">Previous:</span> <a href="chapter-011.html" accesskey="p" rel="previous">Testing</a>
+<span class="navlink-label">Previous:</span> <a href="chapter-011.html" accesskey="p" rel="previous">The preserved digest</a>
 </span>
 </div>
 </nav>
-<h1 data-number="11" id="reference"><span
-class="header-section-number">11</span> Reference</h1>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> reader = { size : <span class="dt">int64</span>; read : <span class="dt">int64</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">string</span>; check : <span class="dt">unit</span> -&gt; <span class="dt">unit</span> }</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> xmp = { offset : <span class="dt">int64</span>; length : <span class="dt">int</span> }</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_role = Image_bytes | Standard_value | Private_value | Structure</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_region = { logical_id : <span class="dt">string</span>; schema : <span class="dt">string</span>; role : component_role;</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                          offset : <span class="dt">int64</span>; length : <span class="dt">int64</span> }</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> policy = { extended : <span class="dt">bool</span>; opaque_maker : <span class="dt">bool</span>; layout_only : <span class="dt">bool</span>;</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                require_xmp : <span class="dt">bool</span>; max_xmp : <span class="dt">int</span> }</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v0 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v1 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> merge_only : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> layout : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> walk : ?record:(component_region -&gt; <span class="dt">unit</span>) -&gt;</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  ?unknown:(<span class="dt">string</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int64</span> -&gt; <span class="dt">unit</span>) -&gt;</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  policy -&gt; reader -&gt; (xmp <span class="dt">option</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> admit_fields : (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>) <span class="dt">list</span> -&gt; <span class="dt">unit</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> parse_admission : <span class="dt">string</span> -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> unknown_fields : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span> * <span class="dt">int64</span>) <span class="dt">list</span> * <span class="dt">string</span> <span class="dt">option</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> component_regions : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (component_region <span class="dt">list</span>, <span class="dt">string</span>) <span class="dt">result</span></span></code></pre></div>
-<p><code>walk</code>’s <code>record</code> sees each region as it is
-found, and <code>unknown</code> turns an unknown field from a refusal
-into a note. <code>schema</code> on a region says how to read its bytes:
-<code>tiff-structure/0</code>, <code>tiff-encoded-unit/0</code>, or
-<code>tiff-value/0:&lt;byte order&gt;:&lt;type&gt;:&lt;count&gt;</code>.</p>
+<h1 data-number="11" id="testing"><span
+class="header-section-number">11</span> Testing</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> both                 <span class="co"># OCaml tests, stock OCaml 5 and OxCaml</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> rust                 <span class="co"># Rust tests and clippy</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> cross                <span class="co"># the two builds agree on every file</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> all                  <span class="co"># all three</span></span></code></pre></div>
+<p>The tests build every file in memory from a list of TIFF entries, so
+the repository holds no photos and no fixtures. The OCaml build has 47
+controls:</p>
+<ul>
+<li><strong>Shapes:</strong> minimal DNGs in both byte orders, classic
+TIFF and BigTIFF, accepted by each grammar that should accept them.</li>
+<li><strong>Refusals:</strong> a missing or unsupported DNGVersion,
+duplicate tags, a cyclic pointer, unpaired strips, two packets, a value
+past the end, a strip inside the packet, a packet over
+<code>max_xmp</code>, unknown fields per grammar.</li>
+<li><strong>Widening:</strong> UNDEFINED packets, simple types,
+MakerNote, DNGPrivateData placement, admissions and their
+withdrawal.</li>
+<li><strong>Reader contract:</strong> <code>check</code> runs once after
+success and never after a refusal; reader exceptions pass through.</li>
+<li><strong>Regions:</strong> roles of the header, strips, standard and
+private values, all inside the file.</li>
+</ul>
+<p>The tests do catch breakage. With the overlap check disabled, exactly
+the strip-inside-the-packet control fails.</p>
+<p>The Rust build has the same kinds of control in five groups (shapes,
+refusals, widening and admissions, regions and the reader contract, and
+limits), built with its own small TIFF writer. Then the cross check
+compares the two builds.</p>
+<h2 data-number="11.1" id="changing-a-grammar"><span
+class="header-section-number">11.1</span> Changing a grammar</h2>
+<p>The grammars are a protocol: Semantic Unison peers agree on them by
+name. Widening one changes what peers will accept, so a change needs
+agreement with Semantic Unison first, the same change in both builds,
+and synthetic controls for every new acceptance and every refusal next
+to it. <code>make all</code> must pass before it is published.</p>
 </body>
 </html>

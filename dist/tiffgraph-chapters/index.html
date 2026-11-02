@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
   <meta name="dcterms.date" content="2026-11-02" />
-  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml." />
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml, OxCaml and Rust." />
   <title>tiffgraph</title>
   <style>
     div.sitenav { display: flex; flex-direction: row; flex-wrap: wrap; }
@@ -53,8 +53,8 @@
 </nav>
 <header id="title-block-header">
 <h1 class="title">tiffgraph</h1>
-<p class="subtitle">A bounded TIFF/DNG graph walker for OCaml and
-OxCaml</p>
+<p class="subtitle">A bounded TIFF/DNG graph walker for OCaml, OxCaml
+and Rust</p>
 <p class="author">Alexy Khrabrov, with Claude as co-author</p>
 <p class="date">2026-11-02</p>
 </header>
@@ -75,7 +75,14 @@ id="toc-where-it-comes-from"><span class="toc-section-number">2.2</span>
 Where it comes from</a></li>
 </ul></li>
 <li><a href="chapter-004.html#installing" id="toc-installing"><span
-class="toc-section-number">3</span> Installing</a></li>
+class="toc-section-number">3</span> Installing</a>
+<ul>
+<li><a href="chapter-004.html#ocaml-and-oxcaml"
+id="toc-ocaml-and-oxcaml"><span class="toc-section-number">3.1</span>
+OCaml and OxCaml</a></li>
+<li><a href="chapter-004.html#rust" id="toc-rust"><span
+class="toc-section-number">3.2</span> Rust</a></li>
+</ul></li>
 <li><a href="chapter-005.html#using-it" id="toc-using-it"><span
 class="toc-section-number">4</span> Using it</a>
 <ul>
@@ -106,18 +113,31 @@ id="toc-component-regions"><span class="toc-section-number">7</span>
 Component regions</a></li>
 <li><a href="chapter-009.html#oxcaml" id="toc-oxcaml"><span
 class="toc-section-number">8</span> OxCaml</a></li>
-<li><a href="chapter-010.html#the-preserved-digest"
-id="toc-the-preserved-digest"><span class="toc-section-number">9</span>
-The preserved digest</a></li>
-<li><a href="chapter-011.html#testing" id="toc-testing"><span
-class="toc-section-number">10</span> Testing</a>
+<li><a href="chapter-010.html#rust-1" id="toc-rust-1"><span
+class="toc-section-number">9</span> Rust</a>
 <ul>
-<li><a href="chapter-011.html#changing-a-grammar"
-id="toc-changing-a-grammar"><span class="toc-section-number">10.1</span>
+<li><a href="chapter-010.html#one-behaviour-two-builds"
+id="toc-one-behaviour-two-builds"><span
+class="toc-section-number">9.1</span> One behaviour, two builds</a></li>
+</ul></li>
+<li><a href="chapter-011.html#the-preserved-digest"
+id="toc-the-preserved-digest"><span class="toc-section-number">10</span>
+The preserved digest</a></li>
+<li><a href="chapter-012.html#testing" id="toc-testing"><span
+class="toc-section-number">11</span> Testing</a>
+<ul>
+<li><a href="chapter-012.html#changing-a-grammar"
+id="toc-changing-a-grammar"><span class="toc-section-number">11.1</span>
 Changing a grammar</a></li>
 </ul></li>
-<li><a href="chapter-012.html#reference" id="toc-reference"><span
-class="toc-section-number">11</span> Reference</a></li>
+<li><a href="chapter-013.html#reference" id="toc-reference"><span
+class="toc-section-number">12</span> Reference</a>
+<ul>
+<li><a href="chapter-013.html#ocaml" id="toc-ocaml"><span
+class="toc-section-number">12.1</span> OCaml</a></li>
+<li><a href="chapter-013.html#rust-2" id="toc-rust-2"><span
+class="toc-section-number">12.2</span> Rust</a></li>
+</ul></li>
 </ul>
 </nav>
 

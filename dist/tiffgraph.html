@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="author" content="Alexy Khrabrov, with Claude as co-author" />
   <meta name="dcterms.date" content="2026-11-02" />
-  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml and OxCaml." />
+  <meta name="description" content="A short manual for tiffgraph, which finds a DNG’s XMP packet under a fixed grammar, proves nothing else lies inside it, and maps every region of the file, from OCaml, OxCaml and Rust." />
   <title>tiffgraph</title>
   <style>
 
@@ -112,8 +112,8 @@ figcaption { font-size: .88em; font-style: italic; color: #3b5563; margin-top: .
 <body>
 <header id="title-block-header">
 <h1 class="title">tiffgraph</h1>
-<p class="subtitle">A bounded TIFF/DNG graph walker for OCaml and
-OxCaml</p>
+<p class="subtitle">A bounded TIFF/DNG graph walker for OCaml, OxCaml
+and Rust</p>
 <p class="author">Alexy Khrabrov, with Claude as co-author</p>
 <p class="date">2026-11-02</p>
 </header>
@@ -125,7 +125,11 @@ OxCaml</p>
 <li><a href="#what-it-is-not" id="toc-what-it-is-not"><span class="toc-section-number">2.1</span> What it is not</a></li>
 <li><a href="#where-it-comes-from" id="toc-where-it-comes-from"><span class="toc-section-number">2.2</span> Where it comes from</a></li>
 </ul></li>
-<li><a href="#installing" id="toc-installing"><span class="toc-section-number">3</span> Installing</a></li>
+<li><a href="#installing" id="toc-installing"><span class="toc-section-number">3</span> Installing</a>
+<ul>
+<li><a href="#ocaml-and-oxcaml" id="toc-ocaml-and-oxcaml"><span class="toc-section-number">3.1</span> OCaml and OxCaml</a></li>
+<li><a href="#rust" id="toc-rust"><span class="toc-section-number">3.2</span> Rust</a></li>
+</ul></li>
 <li><a href="#using-it" id="toc-using-it"><span class="toc-section-number">4</span> Using it</a>
 <ul>
 <li><a href="#the-reader" id="toc-the-reader"><span class="toc-section-number">4.1</span> The reader</a></li>
@@ -142,12 +146,20 @@ OxCaml</p>
 <li><a href="#limits" id="toc-limits"><span class="toc-section-number">6</span> Limits</a></li>
 <li><a href="#component-regions" id="toc-component-regions"><span class="toc-section-number">7</span> Component regions</a></li>
 <li><a href="#oxcaml" id="toc-oxcaml"><span class="toc-section-number">8</span> OxCaml</a></li>
-<li><a href="#the-preserved-digest" id="toc-the-preserved-digest"><span class="toc-section-number">9</span> The preserved digest</a></li>
-<li><a href="#testing" id="toc-testing"><span class="toc-section-number">10</span> Testing</a>
+<li><a href="#rust-1" id="toc-rust-1"><span class="toc-section-number">9</span> Rust</a>
 <ul>
-<li><a href="#changing-a-grammar" id="toc-changing-a-grammar"><span class="toc-section-number">10.1</span> Changing a grammar</a></li>
+<li><a href="#one-behaviour-two-builds" id="toc-one-behaviour-two-builds"><span class="toc-section-number">9.1</span> One behaviour, two builds</a></li>
 </ul></li>
-<li><a href="#reference" id="toc-reference"><span class="toc-section-number">11</span> Reference</a></li>
+<li><a href="#the-preserved-digest" id="toc-the-preserved-digest"><span class="toc-section-number">10</span> The preserved digest</a></li>
+<li><a href="#testing" id="toc-testing"><span class="toc-section-number">11</span> Testing</a>
+<ul>
+<li><a href="#changing-a-grammar" id="toc-changing-a-grammar"><span class="toc-section-number">11.1</span> Changing a grammar</a></li>
+</ul></li>
+<li><a href="#reference" id="toc-reference"><span class="toc-section-number">12</span> Reference</a>
+<ul>
+<li><a href="#ocaml" id="toc-ocaml"><span class="toc-section-number">12.1</span> OCaml</a></li>
+<li><a href="#rust-2" id="toc-rust-2"><span class="toc-section-number">12.2</span> Rust</a></li>
+</ul></li>
 </ul>
 </nav>
 <figure>
@@ -219,9 +231,14 @@ phidentify, a library of named identities for photo files.</p>
 <p>The code moved without change. The old and new walkers gave
 byte-identical results on 328 local DNGs, and Unison’s own DNG tests
 pass against the package.</p>
+<p>The same day it gained a second build, in Rust: a line-for-line port
+with the same grammars, limits, order of checks and refusal reasons. The
+two builds are compared file by file, as the chapter on Rust
+describes.</p>
 <h1 data-number="3" id="installing"><span class="header-section-number">3</span> Installing</h1>
-<p>tiffgraph is pure OCaml with no dependencies beyond the standard
-library. It builds with stock OCaml 5.1 or later and with OxCaml.</p>
+<h2 data-number="3.1" id="ocaml-and-oxcaml"><span class="header-section-number">3.1</span> OCaml and OxCaml</h2>
+<p>The OCaml build has no dependencies beyond the standard library. It
+builds with stock OCaml 5.1 or later and with OxCaml.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">opam</span> pin add tiffgraph git+https://github.com/firstpair/tiffgraph.git#main</span></code></pre></div>
 <p>Use it from dune:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>(executable</span>
@@ -231,15 +248,22 @@ library. It builds with stock OCaml 5.1 or later and with OxCaml.</p>
 standard library:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ocamlfind</span> ocamlopt <span class="at">-package</span> tiffgraph <span class="at">-linkpkg</span> scan.ml <span class="at">-o</span> scan</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">ocamlopt</span> <span class="at">-I</span> +../tiffgraph tiffgraph.cmxa scan.ml <span class="at">-o</span> scan</span></code></pre></div>
+<h2 data-number="3.2" id="rust"><span class="header-section-number">3.2</span> Rust</h2>
+<p>The Rust build is the crate in <code>rust/</code>, also with no
+dependencies:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[dependencies]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">tiffgraph</span> <span class="op">=</span> <span class="op">{ </span><span class="dt">git</span><span class="op"> =</span> <span class="st">&quot;https://github.com/firstpair/tiffgraph&quot;</span><span class="op"> }</span></span></code></pre></div>
+<p>It uses Rust edition 2024; the repository pins the toolchain in
+<code>rust/rust-toolchain.toml</code>.</p>
 <h1 data-number="4" id="using-it"><span class="header-section-number">4</span> Using it</h1>
 <h2 data-number="4.1" id="the-reader"><span class="header-section-number">4.1</span> The reader</h2>
 <p>tiffgraph never opens files. You give it a <strong>reader</strong>:
 three functions over whatever holds the bytes.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> reader = {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  size : <span class="dt">int64</span>;</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  read : <span class="dt">int64</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">string</span>;</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  check : <span class="dt">unit</span> -&gt; <span class="dt">unit</span>;</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> reader = {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  size : <span class="dt">int64</span>;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  read : <span class="dt">int64</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">string</span>;</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  check : <span class="dt">unit</span> -&gt; <span class="dt">unit</span>;</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <ul>
 <li><strong><code>size</code></strong> is the file’s length. Every
 extent is checked against it.</li>
@@ -254,38 +278,38 @@ were at the start.</li>
 <code>walk</code> unchanged, so your own error type survives. Only the
 walker’s own refusals become <code>Error</code>.</p>
 <p>A reader over a file descriptor:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> reader_of_fd fd =</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> size = (Unix.LargeFile.fstat fd).st_size <span class="kw">in</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> read offset length =</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> buf = <span class="dt">Bytes</span>.create length <span class="kw">in</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">ignore</span> (Unix.LargeFile.lseek fd offset Unix.SEEK_SET);</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="kw">rec</span> fill at =</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">if</span> at &lt; length <span class="kw">then</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">match</span> Unix.read fd buf at (length - at) <span class="kw">with</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        | <span class="dv">0</span> -&gt; <span class="dt">failwith</span> <span class="st">&quot;short read&quot;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        | n -&gt; fill (at + n) <span class="kw">in</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    fill <span class="dv">0</span>;</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Bytes</span>.unsafe_to_string buf <span class="kw">in</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  { Tiffgraph.size; read; check = (<span class="kw">fun</span> () -&gt; ()) }</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> reader_of_fd fd =</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> size = (Unix.LargeFile.fstat fd).st_size <span class="kw">in</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> read offset length =</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> buf = <span class="dt">Bytes</span>.create length <span class="kw">in</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">ignore</span> (Unix.LargeFile.lseek fd offset Unix.SEEK_SET);</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="kw">rec</span> fill at =</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">if</span> at &lt; length <span class="kw">then</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">match</span> Unix.read fd buf at (length - at) <span class="kw">with</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        | <span class="dv">0</span> -&gt; <span class="dt">failwith</span> <span class="st">&quot;short read&quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        | n -&gt; fill (at + n) <span class="kw">in</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    fill <span class="dv">0</span>;</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Bytes</span>.unsafe_to_string buf <span class="kw">in</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  { Tiffgraph.size; read; check = (<span class="kw">fun</span> () -&gt; ()) }</span></code></pre></div>
 <p>A reader over a string held in memory is even shorter, and the test
 suite uses one.</p>
 <h2 data-number="4.2" id="finding-the-packet"><span class="header-section-number">4.2</span> Finding the packet</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">match</span> Tiffgraph.walk (Tiffgraph.v1 ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>)) reader <span class="kw">with</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> (<span class="dt">Some</span> { Tiffgraph.offset; length }) -&gt;</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Printf</span>.printf <span class="st">&quot;XMP at %Ld, %d bytes</span><span class="ch">\n</span><span class="st">&quot;</span> offset length</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> <span class="dt">None</span> -&gt; <span class="dt">print_endline</span> <span class="st">&quot;no packet, and the policy did not require one&quot;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Error</span> reason -&gt; <span class="dt">print_endline</span> (<span class="st">&quot;refused: &quot;</span> ^ reason)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">match</span> Tiffgraph.walk (Tiffgraph.v1 ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>)) reader <span class="kw">with</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> (<span class="dt">Some</span> { Tiffgraph.offset; length }) -&gt;</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Printf</span>.printf <span class="st">&quot;XMP at %Ld, %d bytes</span><span class="ch">\n</span><span class="st">&quot;</span> offset length</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> <span class="dt">None</span> -&gt; <span class="dt">print_endline</span> <span class="st">&quot;no packet, and the policy did not require one&quot;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Error</span> reason -&gt; <span class="dt">print_endline</span> (<span class="st">&quot;refused: &quot;</span> ^ reason)</span></code></pre></div>
 <p><code>max_xmp</code> is the largest packet you will accept; Semantic
 Unison uses 1 MiB. <code>Ok None</code> happens only with a policy whose
 <code>require_xmp</code> is false.</p>
 <p>To find the strictest grammar a file satisfies, try them in
 order:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> strictest reader =</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">List</span>.find_map (<span class="kw">fun</span> (name, policy) -&gt;</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">match</span> Tiffgraph.walk (policy ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>)) reader <span class="kw">with</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    | <span class="dt">Ok</span> (<span class="dt">Some</span> packet) -&gt; <span class="dt">Some</span> (name, packet)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    | _ -&gt; <span class="dt">None</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    [ <span class="st">&quot;v0&quot;</span>, Tiffgraph.v0; <span class="st">&quot;v1&quot;</span>, Tiffgraph.v1; <span class="st">&quot;merge_only&quot;</span>, Tiffgraph.merge_only ]</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> strictest reader =</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">List</span>.find_map (<span class="kw">fun</span> (name, policy) -&gt;</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">match</span> Tiffgraph.walk (policy ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>)) reader <span class="kw">with</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    | <span class="dt">Ok</span> (<span class="dt">Some</span> packet) -&gt; <span class="dt">Some</span> (name, packet)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    | _ -&gt; <span class="dt">None</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    [ <span class="st">&quot;v0&quot;</span>, Tiffgraph.v0; <span class="st">&quot;v1&quot;</span>, Tiffgraph.v1; <span class="st">&quot;merge_only&quot;</span>, Tiffgraph.merge_only ]</span></code></pre></div>
 <h1 data-number="5" id="the-grammars"><span class="header-section-number">5</span> The grammars</h1>
 <p>A grammar fixes which directories, fields and field types a file may
 contain. Each is a superset of the one before.</p>
@@ -383,9 +407,9 @@ hidden pointer.</p>
 <h2 data-number="5.5" id="admissions"><span class="header-section-number">5.5</span> Admissions</h2>
 <p><code>admit_fields</code> widens <code>merge_only</code> at run time
 with fields you have checked yourself:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">match</span> Tiffgraph.parse_admission <span class="st">&quot;Image:65001:4&quot;</span> <span class="kw">with</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> field -&gt; Tiffgraph.admit_fields [field]</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Error</span> reason -&gt; <span class="dt">prerr_endline</span> reason</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">match</span> Tiffgraph.parse_admission <span class="st">&quot;Image:65001:4&quot;</span> <span class="kw">with</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> field -&gt; Tiffgraph.admit_fields [field]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Error</span> reason -&gt; <span class="dt">prerr_endline</span> reason</span></code></pre></div>
 <p>An admission names a directory (<code>Image</code>,
 <code>Exif</code>, <code>GPS</code> or <code>Interop</code>), a tag and
 a type. Pointer types are refused, and camera-profile fields cannot be
@@ -396,9 +420,9 @@ other, never a mixture.</p>
 <p>To find out what a file needs, <code>unknown_fields</code> lists
 every field outside <code>merge_only</code> instead of stopping at the
 first:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> fields, stopped = Tiffgraph.unknown_fields ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>) reader <span class="kw">in</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">List</span>.iter (<span class="kw">fun</span> (directory, tag, typ, count) -&gt;</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Printf</span>.printf <span class="st">&quot;%s:%d:%d (count %Ld)</span><span class="ch">\n</span><span class="st">&quot;</span> directory tag typ count) fields</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> fields, stopped = Tiffgraph.unknown_fields ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>) reader <span class="kw">in</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dt">List</span>.iter (<span class="kw">fun</span> (directory, tag, typ, count) -&gt;</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Printf</span>.printf <span class="st">&quot;%s:%d:%d (count %Ld)</span><span class="ch">\n</span><span class="st">&quot;</span> directory tag typ count) fields</span></code></pre></div>
 <p>It is a survey, not a verdict. A noted field is then walked as a
 plain value, so what follows it is advisory.</p>
 <h1 data-number="6" id="limits"><span class="header-section-number">6</span> Limits</h1>
@@ -449,11 +473,11 @@ read, and unsigned 64-bit values too large for a signed
 <p><code>component_regions</code> walks with the <code>layout</code>
 grammar, requires no packet, and returns every physical claim in the
 file:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">match</span> Tiffgraph.component_regions ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>) reader <span class="kw">with</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> regions -&gt;</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">List</span>.iter (<span class="kw">fun</span> (r : Tiffgraph.component_region) -&gt;</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Printf</span>.printf <span class="st">&quot;%-40s %Ld+%Ld</span><span class="ch">\n</span><span class="st">&quot;</span> r.logical_id r.offset r.length) regions</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Error</span> reason -&gt; <span class="dt">prerr_endline</span> reason</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">match</span> Tiffgraph.component_regions ~max_xmp:(<span class="dv">1</span> <span class="kw">lsl</span> <span class="dv">20</span>) reader <span class="kw">with</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Ok</span> regions -&gt;</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">List</span>.iter (<span class="kw">fun</span> (r : Tiffgraph.component_region) -&gt;</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Printf</span>.printf <span class="st">&quot;%-40s %Ld+%Ld</span><span class="ch">\n</span><span class="st">&quot;</span> r.logical_id r.offset r.length) regions</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>| <span class="dt">Error</span> reason -&gt; <span class="dt">prerr_endline</span> reason</span></code></pre></div>
 <p>Each region has a role:</p>
 <table>
 <colgroup>
@@ -504,7 +528,69 @@ give to <code>Domain.Safe.spawn</code> captures. Build the reader inside
 the worker, for example from a portable <code>pread</code> external on a
 file descriptor, and nothing non-portable crosses domains. phidentify’s
 backup indexer does exactly that.</p>
-<h1 data-number="9" id="the-preserved-digest"><span class="header-section-number">9</span> The preserved digest</h1>
+<h1 data-number="9" id="rust-1"><span class="header-section-number">9</span> Rust</h1>
+<p>The Rust build has the same parts under Rust names:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="pp">tiffgraph::</span><span class="op">{</span>walk<span class="op">,</span> FileReader<span class="op">,</span> Observers<span class="op">,</span> Policy<span class="op">,</span> WalkError<span class="op">};</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> <span class="kw">mut</span> reader <span class="op">=</span> <span class="pp">FileReader::</span>open(path)<span class="op">?;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">match</span> walk(<span class="op">&amp;</span><span class="pp">Policy::</span>v1(<span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">20</span>)<span class="op">,</span> <span class="op">&amp;</span><span class="kw">mut</span> reader<span class="op">,</span> <span class="pp">Observers::</span><span class="kw">default</span>()) <span class="op">{</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="cn">Ok</span>(<span class="cn">Some</span>(xmp)) <span class="op">=&gt;</span> <span class="pp">println!</span>(<span class="st">&quot;XMP at {}, {} bytes&quot;</span><span class="op">,</span> xmp<span class="op">.</span>offset<span class="op">,</span> xmp<span class="op">.</span>length)<span class="op">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="cn">Ok</span>(<span class="cn">None</span>) <span class="op">=&gt;</span> <span class="pp">println!</span>(<span class="st">&quot;no packet, and the policy did not require one&quot;</span>)<span class="op">,</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cn">Err</span>(<span class="pp">WalkError::</span>Refused(reason)) <span class="op">=&gt;</span> <span class="pp">println!</span>(<span class="st">&quot;refused: {reason}&quot;</span>)<span class="op">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="cn">Err</span>(<span class="pp">WalkError::</span>Reader(e)) <span class="op">=&gt;</span> <span class="cf">return</span> <span class="cn">Err</span>(e<span class="op">.</span>into())<span class="op">,</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ul>
+<li><strong>The reader is a trait</strong>, <code>Reader</code>, with
+<code>size</code>, <code>read</code> and a <code>check</code> that does
+nothing unless you supply one. <code>SliceReader</code> reads bytes in
+memory and <code>FileReader</code> reads a file with positional
+reads.</li>
+<li><strong>Errors are typed.</strong> A refusal is
+<code>WalkError::Refused(reason)</code>, with the same reason text as
+the OCaml build. A reader failure is <code>WalkError::Reader(e)</code>,
+with the reader’s own error unchanged.</li>
+<li><strong>Observers are optional closures.</strong>
+<code>Observers { record, unknown }</code> takes the place of OCaml’s
+<code>?record</code> and <code>?unknown</code>. A <code>record</code>
+closure may return <code>Err</code> to stop the walk, which is how
+<code>component_regions</code> enforces its limit.</li>
+<li><strong>Policies are constructors:</strong>
+<code>Policy::v0(max_xmp)</code>, <code>v1</code>,
+<code>merge_only</code> and <code>layout</code>.</li>
+<li><strong>Admissions are global</strong>, as in OCaml:
+<code>admit_fields</code> replaces the list behind a lock and
+<code>parse_admission</code> parses <code>Image:65001:4</code>. It
+accepts integers in the same forms OCaml’s <code>int_of_string</code>
+does, so <code>Exif:0x927c:7</code> means the same in both.</li>
+</ul>
+<h2 data-number="9.1" id="one-behaviour-two-builds"><span class="header-section-number">9.1</span> One behaviour, two builds</h2>
+<p>A port is only as good as its comparison, so the two builds are
+compared on every file, by <code>test/cross.py</code>
+(<code>make cross</code>). Each build has a small <code>dump</code>
+program that prints what every grammar makes of a file: the packet or
+the exact refusal reason under <code>v0</code>, <code>v1</code>,
+<code>merge_only</code> and <code>layout</code>, the unknown-field
+survey, and every component region with its ID, schema, role, offset and
+length. The two outputs must be identical, byte for byte. The files
+are:</p>
+<ul>
+<li><strong>40 synthetic DNG-shaped files:</strong> both byte orders,
+classic TIFF and BigTIFF, sub-IFDs, Exif, a camera profile, private
+fields, UNDEFINED packets, JPEG XL scalars.</li>
+<li><strong>3,000 seeded mutations of them:</strong> bytes flipped,
+files cut short, counts and offsets overwritten, stretches duplicated.
+Most are refused, and the point is that both builds refuse them for the
+same reason.</li>
+<li><strong>Any files you add,</strong> such as real DNGs. On 2026-11-02
+the 328 local DNGs gave identical output from both builds.</li>
+</ul>
+<p>The comparison does catch differences. Changing the role of strip
+regions in the Rust build made it fail at once, naming the first line
+that differed. It can’t catch differences in limits that no compared
+file reaches, so the Rust tests check those directly: more than 65,536
+strip pieces, more than 16,384 entries, and an eight-byte number past
+signed 64 bits.</p>
+<h1 data-number="10" id="the-preserved-digest"><span class="header-section-number">10</span> The preserved digest</h1>
 <p>A walker that finds the packet makes possible an identity that
 ignores it: a hash of every byte <strong>outside</strong> the editable
 region, with the layout bound in. Two files with the same preserved
@@ -527,11 +613,13 @@ tiffgraph. On 2026-11-02 they were compared on 60 randomly chosen
 catalog DNGs: all 57 files with a packet gave the same strictest grammar
 (<code>merge_only</code>) and the same digest from both, and the 3
 without a packet were refused by both.</p>
-<h1 data-number="10" id="testing"><span class="header-section-number">10</span> Testing</h1>
-<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">dune</span> test                 <span class="co"># the current switch</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> both                 <span class="co"># stock OCaml 5 and OxCaml</span></span></code></pre></div>
+<h1 data-number="11" id="testing"><span class="header-section-number">11</span> Testing</h1>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> both                 <span class="co"># OCaml tests, stock OCaml 5 and OxCaml</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> rust                 <span class="co"># Rust tests and clippy</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> cross                <span class="co"># the two builds agree on every file</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> all                  <span class="co"># all three</span></span></code></pre></div>
 <p>The tests build every file in memory from a list of TIFF entries, so
-the repository holds no photos and no fixtures. There are 47
+the repository holds no photos and no fixtures. The OCaml build has 47
 controls:</p>
 <ul>
 <li><strong>Shapes:</strong> minimal DNGs in both byte orders, classic
@@ -550,37 +638,71 @@ private values, all inside the file.</li>
 </ul>
 <p>The tests do catch breakage. With the overlap check disabled, exactly
 the strip-inside-the-packet control fails.</p>
-<h2 data-number="10.1" id="changing-a-grammar"><span class="header-section-number">10.1</span> Changing a grammar</h2>
+<p>The Rust build has the same kinds of control in five groups (shapes,
+refusals, widening and admissions, regions and the reader contract, and
+limits), built with its own small TIFF writer. Then the cross check
+compares the two builds.</p>
+<h2 data-number="11.1" id="changing-a-grammar"><span class="header-section-number">11.1</span> Changing a grammar</h2>
 <p>The grammars are a protocol: Semantic Unison peers agree on them by
 name. Widening one changes what peers will accept, so a change needs
-agreement with Semantic Unison first, and synthetic controls for every
-new acceptance and every refusal next to it.</p>
-<h1 data-number="11" id="reference"><span class="header-section-number">11</span> Reference</h1>
-<div class="sourceCode" id="cb13"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> reader = { size : <span class="dt">int64</span>; read : <span class="dt">int64</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">string</span>; check : <span class="dt">unit</span> -&gt; <span class="dt">unit</span> }</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> xmp = { offset : <span class="dt">int64</span>; length : <span class="dt">int</span> }</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_role = Image_bytes | Standard_value | Private_value | Structure</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_region = { logical_id : <span class="dt">string</span>; schema : <span class="dt">string</span>; role : component_role;</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                          offset : <span class="dt">int64</span>; length : <span class="dt">int64</span> }</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> policy = { extended : <span class="dt">bool</span>; opaque_maker : <span class="dt">bool</span>; layout_only : <span class="dt">bool</span>;</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                require_xmp : <span class="dt">bool</span>; max_xmp : <span class="dt">int</span> }</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v0 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v1 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> merge_only : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> layout : max_xmp:<span class="dt">int</span> -&gt; policy</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> walk : ?record:(component_region -&gt; <span class="dt">unit</span>) -&gt;</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  ?unknown:(<span class="dt">string</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int64</span> -&gt; <span class="dt">unit</span>) -&gt;</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  policy -&gt; reader -&gt; (xmp <span class="dt">option</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> admit_fields : (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>) <span class="dt">list</span> -&gt; <span class="dt">unit</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> parse_admission : <span class="dt">string</span> -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> unknown_fields : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span> * <span class="dt">int64</span>) <span class="dt">list</span> * <span class="dt">string</span> <span class="dt">option</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> component_regions : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (component_region <span class="dt">list</span>, <span class="dt">string</span>) <span class="dt">result</span></span></code></pre></div>
+agreement with Semantic Unison first, the same change in both builds,
+and synthetic controls for every new acceptance and every refusal next
+to it. <code>make all</code> must pass before it is published.</p>
+<h1 data-number="12" id="reference"><span class="header-section-number">12</span> Reference</h1>
+<h2 data-number="12.1" id="ocaml"><span class="header-section-number">12.1</span> OCaml</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode ocaml"><code class="sourceCode ocaml"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> reader = { size : <span class="dt">int64</span>; read : <span class="dt">int64</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">string</span>; check : <span class="dt">unit</span> -&gt; <span class="dt">unit</span> }</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> xmp = { offset : <span class="dt">int64</span>; length : <span class="dt">int</span> }</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_role = Image_bytes | Standard_value | Private_value | Structure</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> component_region = { logical_id : <span class="dt">string</span>; schema : <span class="dt">string</span>; role : component_role;</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                          offset : <span class="dt">int64</span>; length : <span class="dt">int64</span> }</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> policy = { extended : <span class="dt">bool</span>; opaque_maker : <span class="dt">bool</span>; layout_only : <span class="dt">bool</span>;</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                require_xmp : <span class="dt">bool</span>; max_xmp : <span class="dt">int</span> }</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v0 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> v1 : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> merge_only : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> layout : max_xmp:<span class="dt">int</span> -&gt; policy</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> walk : ?record:(component_region -&gt; <span class="dt">unit</span>) -&gt;</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  ?unknown:(<span class="dt">string</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int</span> -&gt; <span class="dt">int64</span> -&gt; <span class="dt">unit</span>) -&gt;</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  policy -&gt; reader -&gt; (xmp <span class="dt">option</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> admit_fields : (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>) <span class="dt">list</span> -&gt; <span class="dt">unit</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> parse_admission : <span class="dt">string</span> -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span>, <span class="dt">string</span>) <span class="dt">result</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> unknown_fields : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (<span class="dt">string</span> * <span class="dt">int</span> * <span class="dt">int</span> * <span class="dt">int64</span>) <span class="dt">list</span> * <span class="dt">string</span> <span class="dt">option</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> component_regions : max_xmp:<span class="dt">int</span> -&gt; reader -&gt; (component_region <span class="dt">list</span>, <span class="dt">string</span>) <span class="dt">result</span></span></code></pre></div>
 <p><code>walk</code>’s <code>record</code> sees each region as it is
 found, and <code>unknown</code> turns an unknown field from a refusal
 into a note. <code>schema</code> on a region says how to read its bytes:
 <code>tiff-structure/0</code>, <code>tiff-encoded-unit/0</code>, or
 <code>tiff-value/0:&lt;byte order&gt;:&lt;type&gt;:&lt;count&gt;</code>.</p>
+<h2 data-number="12.2" id="rust-2"><span class="header-section-number">12.2</span> Rust</h2>
+<div class="sourceCode" id="cb16"><pre class="sourceCode rust"><code class="sourceCode rust"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">trait</span> Reader <span class="op">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">type</span> Error<span class="op">;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> size(<span class="op">&amp;</span><span class="kw">self</span>) <span class="op">-&gt;</span> <span class="dt">i64</span><span class="op">;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> read(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span><span class="op">,</span> offset<span class="op">:</span> <span class="dt">i64</span><span class="op">,</span> length<span class="op">:</span> <span class="dt">usize</span>) <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span><span class="dt">Vec</span><span class="op">&lt;</span><span class="dt">u8</span><span class="op">&gt;,</span> <span class="pp">Self::</span><span class="bu">Error</span><span class="op">&gt;;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">fn</span> check(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>) <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span>()<span class="op">,</span> <span class="pp">Self::</span><span class="bu">Error</span><span class="op">&gt;</span> <span class="op">{</span> <span class="cn">Ok</span>(()) <span class="op">}</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> SliceReader<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="op">&amp;</span><span class="ot">&#39;a</span> [<span class="dt">u8</span>])<span class="op">;</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> FileReader <span class="op">{</span> <span class="co">/* ... */</span> <span class="op">}</span>            <span class="co">// FileReader::open(path)</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Xmp <span class="op">{</span> <span class="kw">pub</span> offset<span class="op">:</span> <span class="dt">i64</span><span class="op">,</span> <span class="kw">pub</span> length<span class="op">:</span> <span class="dt">usize</span> <span class="op">}</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">enum</span> ComponentRole <span class="op">{</span> ImageBytes<span class="op">,</span> StandardValue<span class="op">,</span> PrivateValue<span class="op">,</span> Structure <span class="op">}</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> ComponentRegion <span class="op">{</span> <span class="kw">pub</span> logical_id<span class="op">:</span> <span class="dt">String</span><span class="op">,</span> <span class="kw">pub</span> schema<span class="op">:</span> <span class="dt">String</span><span class="op">,</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>                             <span class="kw">pub</span> role<span class="op">:</span> ComponentRole<span class="op">,</span> <span class="kw">pub</span> offset<span class="op">:</span> <span class="dt">i64</span><span class="op">,</span> <span class="kw">pub</span> length<span class="op">:</span> <span class="dt">i64</span> <span class="op">}</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Policy <span class="op">{</span> <span class="kw">pub</span> extended<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span> <span class="kw">pub</span> opaque_maker<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span> <span class="kw">pub</span> layout_only<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">pub</span> require_xmp<span class="op">:</span> <span class="dt">bool</span><span class="op">,</span> <span class="kw">pub</span> max_xmp<span class="op">:</span> <span class="dt">usize</span> <span class="op">}</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">enum</span> WalkError<span class="op">&lt;</span>E<span class="op">&gt;</span> <span class="op">{</span> Refused(<span class="dt">String</span>)<span class="op">,</span> Reader(E) <span class="op">}</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> Observers<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;</span> <span class="op">{</span> <span class="kw">pub</span> record<span class="op">:</span> <span class="dt">Option</span><span class="op">&lt;</span>RecordFn<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;&gt;,</span> <span class="kw">pub</span> unknown<span class="op">:</span> <span class="dt">Option</span><span class="op">&lt;</span>UnknownFn<span class="op">&lt;</span><span class="ot">&#39;a</span><span class="op">&gt;&gt;</span> <span class="op">}</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="kw">impl</span> Policy <span class="op">{</span> <span class="kw">pub</span> <span class="kw">fn</span> v0(max_xmp<span class="op">:</span> <span class="dt">usize</span>) <span class="op">-&gt;</span> Policy<span class="op">;</span> <span class="co">/* v1, merge_only, layout */</span> <span class="op">}</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> walk<span class="op">&lt;</span>R<span class="op">:</span> Reader<span class="op">&gt;</span>(policy<span class="op">:</span> <span class="op">&amp;</span>Policy<span class="op">,</span> reader<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> R<span class="op">,</span> obs<span class="op">:</span> Observers<span class="op">&lt;</span><span class="ot">&#39;_</span><span class="op">&gt;</span>)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span><span class="dt">Option</span><span class="op">&lt;</span>Xmp<span class="op">&gt;,</span> WalkError<span class="op">&lt;</span><span class="pp">R::</span><span class="bu">Error</span><span class="op">&gt;&gt;;</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> admit_fields(fields<span class="op">:</span> <span class="dt">Vec</span><span class="op">&lt;</span>(<span class="dt">String</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span>)<span class="op">&gt;</span>)<span class="op">;</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> parse_admission(spec<span class="op">:</span> <span class="op">&amp;</span><span class="dt">str</span>) <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span>(<span class="dt">String</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span>)<span class="op">,</span> <span class="dt">String</span><span class="op">&gt;;</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> unknown_fields<span class="op">&lt;</span>R<span class="op">:</span> Reader<span class="op">&gt;</span>(max_xmp<span class="op">:</span> <span class="dt">usize</span><span class="op">,</span> reader<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> R)</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span>(<span class="dt">Vec</span><span class="op">&lt;</span>(<span class="dt">String</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span><span class="op">,</span> <span class="dt">i64</span>)<span class="op">&gt;,</span> <span class="dt">Option</span><span class="op">&lt;</span><span class="dt">String</span><span class="op">&gt;</span>)<span class="op">,</span> <span class="pp">R::</span><span class="bu">Error</span><span class="op">&gt;;</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">fn</span> component_regions<span class="op">&lt;</span>R<span class="op">:</span> Reader<span class="op">&gt;</span>(max_xmp<span class="op">:</span> <span class="dt">usize</span><span class="op">,</span> reader<span class="op">:</span> <span class="op">&amp;</span><span class="kw">mut</span> R)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">-&gt;</span> <span class="dt">Result</span><span class="op">&lt;</span><span class="dt">Vec</span><span class="op">&lt;</span>ComponentRegion<span class="op">&gt;,</span> WalkError<span class="op">&lt;</span><span class="pp">R::</span><span class="bu">Error</span><span class="op">&gt;&gt;;</span></span></code></pre></div>
 </body>
 </html>
