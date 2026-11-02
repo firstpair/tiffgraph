@@ -1,0 +1,12 @@
+; OxCaml switches (ocaml_version contains +ox) get a portable interface.
+(library
+ (name tiffgraph)
+ (public_name tiffgraph))
+
+(rule
+ (targets tiffgraph.mli)
+ (deps tiffgraph.mli.in)
+ (action
+  (with-stdout-to
+   tiffgraph.mli
+   (run sh -c "case '%{ocaml_version}' in *+ox*) echo '@@ portable';; esac; cat tiffgraph.mli.in"))))
